@@ -8,8 +8,11 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 function App() {
   const [collection, setCollection] = useState(null);
+  const [collectionTitle, setCollectionTitle] = useState(null);
   const [bundles, setBundles] = useState(null);
+  const [bundlesTitle, setBundlesTitle] = useState(null);
   const [picks, setPicks] = useState(null);
+  const [picksTitle, setPicksTitle] = useState(null);
   const [allCollections, setAllCollections] = useState(null);
 
   useEffect(() => {
@@ -22,19 +25,49 @@ function App() {
         setCollection(data[0].shop_collection);
         setBundles(data[0].shop_bundles);
         setPicks(data[0].shop_picks);
-        console.log('data:', data);
       }
     }
 
     async function getCollections() {
-      await shopifyClient.collection.fetchAll().then((collections) => {
-        setAllCollections(collections);
+      await shopifyClient.collection.fetchAll(250).then((collections) => {
+        setAllCollections(parseShopifyResponse(collections));
       });
     }
 
     getData();
     getCollections();
   }, []);
+
+  useEffect(() => {
+    if (collection) {
+      const getCollectionTitle = async () => {
+        const collectionTitle = await shopifyClient.collection.fetch(
+          collection
+        );
+        const collTitle = parseShopifyResponse(collectionTitle);
+        setCollectionTitle(collTitle.title);
+      };
+      getCollectionTitle();
+    }
+
+    if (bundles) {
+      const getBundleTitle = async () => {
+        const collectionTitle = await shopifyClient.collection.fetch(bundles);
+        const collTitle = parseShopifyResponse(collectionTitle);
+        setBundlesTitle(collTitle.title);
+      };
+      getBundleTitle();
+    }
+
+    if (picks) {
+      const getPicksTitle = async () => {
+        const collectionTitle = await shopifyClient.collection.fetch(picks);
+        const collTitle = parseShopifyResponse(collectionTitle);
+        setPicksTitle(collTitle.title);
+      };
+      getPicksTitle();
+    }
+  }, [collection, bundles, picks]);
 
   return (
     <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
@@ -45,7 +78,7 @@ function App() {
               <div className='text-gray font-bold text-2xl'>
                 Shop the Collection
               </div>
-              <div>{collection && collection}</div>
+              <div>{collectionTitle && collectionTitle}</div>
             </div>
             <div className='bg-indigo-600 text-white font-semibold text-lg h-min px-4 py-2 rounded-lg'>
               Change
@@ -54,7 +87,7 @@ function App() {
           <div className='flex justify-between items-center'>
             <div className='flex flex-col gap-1 py-6'>
               <div className='text-gray font-bold text-2xl'>Shop Bundles</div>
-              <div>{bundles && bundles}</div>
+              <div>{bundlesTitle && bundlesTitle}</div>
             </div>
             <div className='bg-indigo-600 text-white font-semibold text-lg h-min px-4 py-2 rounded-lg'>
               Change
@@ -63,7 +96,7 @@ function App() {
           <div className='flex justify-between items-center'>
             <div className='flex flex-col gap-1 py-6'>
               <div className='text-gray font-bold text-2xl'>Shop Picks</div>
-              <div>{picks && picks}</div>
+              <div>{picksTitle && picksTitle}</div>
             </div>
             <div className='bg-indigo-600 text-white font-semibold text-lg h-min px-4 py-2 rounded-lg'>
               Change
