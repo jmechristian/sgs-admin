@@ -25,6 +25,7 @@ function App() {
         setCollection(data[0].shop_collection);
         setBundles(data[0].shop_bundles);
         setPicks(data[0].shop_picks);
+        console.log('hey');
       }
     }
 
